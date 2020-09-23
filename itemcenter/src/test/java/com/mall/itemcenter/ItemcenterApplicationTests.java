@@ -1,10 +1,10 @@
-package com.xzy.onlinemall;
+package com.mall.itemcenter;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class OnlinemallApplicationTests {
+class ItemcenterApplicationTests {
 
     @Test
     void contextLoads() {

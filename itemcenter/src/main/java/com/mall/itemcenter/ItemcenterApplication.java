@@ -1,13 +1,13 @@
-package com.xzy.onlinemall;
+package com.mall.itemcenter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class OnlinemallApplication {
+public class ItemcenterApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(OnlinemallApplication.class, args);
+        SpringApplication.run(ItemcenterApplication.class, args);
     }
 
 }
