@@ -1,4 +1,4 @@
-package com.mall.itemcenter;
+package com.mall.itemcenter.api;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
