@@ -1,0 +1,6 @@
+description '${projectName}-domain'
+
+dependencies {
+    compile project(':${projectName}-infrastructure')
+    compile project(':${projectName}-api')
+}

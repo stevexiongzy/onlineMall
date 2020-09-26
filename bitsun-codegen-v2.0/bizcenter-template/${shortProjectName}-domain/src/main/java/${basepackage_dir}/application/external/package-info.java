@@ -1,0 +1,6 @@
+/**
+ * 外部调用部分功能
+ * @author: ${author!"Felix Woo"}
+ * @email: ${email!"foruforo@msn.com"}
+ */
+package ${basepackage}.external;

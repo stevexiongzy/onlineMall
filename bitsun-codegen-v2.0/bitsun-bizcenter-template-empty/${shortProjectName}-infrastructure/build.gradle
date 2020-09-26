@@ -1,0 +1,5 @@
+description '${projectName}-infrastructure'
+
+dependencies {
+    compile 'com.alibaba:druid:1.1.10'
+}

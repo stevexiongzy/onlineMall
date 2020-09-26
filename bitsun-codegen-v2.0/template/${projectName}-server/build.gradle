@@ -1,0 +1,6 @@
+description '${projectName}-server'
+
+dependencies {
+    compile project(':${projectName}-dto')
+    compile 'com.alibaba:druid:1.1.10'
+}

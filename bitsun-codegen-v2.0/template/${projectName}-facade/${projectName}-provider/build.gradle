@@ -1,0 +1,6 @@
+description '${projectName}-provider'
+
+dependencies {
+    compile project(':${projectName}-server')
+    compile project(':${projectName}-facade:${projectName}-api')
+}

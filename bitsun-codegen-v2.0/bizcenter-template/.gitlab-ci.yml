@@ -1,0 +1,60 @@
+stages:
+ - 编译
+ - 测试
+ - 部署
+
+variables:
+  APP_NAME: '${projectName}'
+
+cache:
+ key: "$CI_PIPELINE_ID"
+ paths:
+  - ./*facade/*provider/build/libs/*.jar
+
+编译-develop:
+ stage: 编译
+ script:
+  - gradle -DBranch=develop clean build -x test
+ only:
+  - develop
+ tags:
+  - dev
+
+编译-release:
+ stage: 编译
+ script:
+  - gradle -DBranch=develop clean build
+ only:
+  - /^release.*$/
+ tags:
+  - qa
+
+编译-master:
+ stage: 编译
+ script:
+  - gradle -DBranch=master clean build
+ only:
+  - master
+ tags:
+  - dev
+
+镜像-dev:
+ stage: 部署
+ script:
+  - wget http://git.jmtop.com/devops/devops/raw/master/Dockerfile/center-platform/Dockerfile-jar -O Dockerfile
+  - docker build -t 127.0.0.1:5000/center-platform/$APP_NAME:dev .
+  - docker push 127.0.0.1:5000/center-platform/$APP_NAME:dev
+  - docker rmi 127.0.0.1:5000/center-platform/$APP_NAME:dev
+ tags:
+  - dev  
+
+发布-dev:
+ stage: 部署
+ only:
+  - develop
+ script:
+  - docker image prune -f
+  - kubectl delete -f http://git.jmtop.com/devops/devops/raw/master/k8s/center-platform/deploy/$APP_NAME-dev.yml
+  - kubectl apply -f http://git.jmtop.com/devops/devops/raw/master/k8s/center-platform/deploy/$APP_NAME-dev.yml
+ tags:
+  - dev

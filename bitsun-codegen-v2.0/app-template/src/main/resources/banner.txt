@@ -1,0 +1,6 @@
+
+#############################
+########${r'${AnsiColor.BRIGHT_GREEN}${AnsiStyle.BOLD}基于中台的应用${AnsiStyle.NORMAL}${AnsiColor.BLACK}'}########
+<<<<<<<${r'${AnsiColor.GREEN}'}${projectName}${r'${AnsiColor.BLACK}'}>>>>>>>
+       Author by Mofar
+${r'${AnsiColor.GREEN}:: Powered by Spring Boot :: ${AnsiStyle.FAINT}${AnsiColor.BLACK}${spring-boot.formatted-version}${AnsiStyle.NORMAL}'}

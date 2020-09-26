@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" >
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <springProperty scope="context" name="logDir" source="logging.${shortProjectName}.path" defaultValue="logs"/>
+    <springProperty scope="context" name="app.name" source="spring.application.name"/>
+
+    <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度 %msg：日志消息，%n是换行符-->
+    <property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss:SSS} [%thread] %level %logger.%M (%logger{0}.java %L\\) - %msg%n"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern><#noparse>${</#noparse>pattern<#noparse>}</#noparse></pattern>
+        </layout>
+    </appender>
+    <appender name="SYSTEM_ERROR_FILE"
+      class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File><#noparse>${</#noparse>logDir}/<#noparse>${</#noparse>app.name<#noparse>}</#noparse>/error.log</File>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern><#noparse>${</#noparse>logDir<#noparse>}</#noparse>/history/<#noparse>${</#noparse>app.name<#noparse>}</#noparse>/error.%d{yyyy-MM-dd<#noparse>}</#noparse>.%i</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <maxFileSize>10MB</maxFileSize>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern><#noparse>${</#noparse>pattern<#noparse>}</#noparse></pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="SYSTEM_INFO_FILE"
+      class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File><#noparse>${</#noparse>logDir<#noparse>}</#noparse>/<#noparse>${</#noparse>app.name<#noparse>}</#noparse>/info.log</File>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern><#noparse>${</#noparse>logDir<#noparse>}</#noparse>/history/<#noparse>${</#noparse>app.name<#noparse>}</#noparse>/info.%d{yyyy-MM-dd<#noparse>}</#noparse>.%i</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <maxFileSize>10MB</maxFileSize>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern><#noparse>${</#noparse>pattern<#noparse>}</#noparse></pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <appender name="SYSTEM_DEV_FILE"
+      class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File><#noparse>${</#noparse>logDir<#noparse>}</#noparse>/<#noparse>${</#noparse>app.name<#noparse>}</#noparse>/dev.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern><#noparse>${</#noparse>logDir<#noparse>}</#noparse>/history/<#noparse>${</#noparse>app.name<#noparse>}</#noparse>/dev.%d{yyyy-MM-dd<#noparse>}</#noparse>.%i</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <maxFileSize>10MB</maxFileSize>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern><#noparse>${</#noparse>pattern<#noparse>}</#noparse></pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="de.codecentric.boot.admin.registry" level="OFF" />
+    <root level="info">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="SYSTEM_ERROR_FILE" />
+        <appender-ref ref="SYSTEM_INFO_FILE" />
+        <appender-ref ref="SYSTEM_DEV_FILE" />
+    </root>
+</configuration>

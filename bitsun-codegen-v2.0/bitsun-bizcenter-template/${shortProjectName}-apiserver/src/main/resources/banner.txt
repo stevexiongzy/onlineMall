@@ -1,0 +1,9 @@
+       *             **
+   *********       **     *
+   *   *   *     **********
+   *********                *
+       *         ***********
+       *         *         *
+       *         ***********
+ <<<<<<<${r'${AnsiColor.GREEN}'}${projectName}${r'${AnsiColor.BLACK}'}>>>>>>>
+${r'${AnsiColor.GREEN}:: Powered by bitsun-inc 2018:: ${AnsiStyle.FAINT}${AnsiColor.BLACK}比升技术${AnsiStyle.NORMAL}'}

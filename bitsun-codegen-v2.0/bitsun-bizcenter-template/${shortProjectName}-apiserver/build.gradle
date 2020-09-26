@@ -1,0 +1,7 @@
+description '${projectName}-appserver'
+
+dependencies {
+    compile project(':${projectName}-api')
+    compile project(':${projectName}-infrastructure')
+    compile project(':${projectName}-domain')
+}

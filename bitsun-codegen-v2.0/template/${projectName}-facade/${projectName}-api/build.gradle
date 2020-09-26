@@ -1,0 +1,5 @@
+description '${projectName}-api'
+
+dependencies {
+    compile project(':${projectName}-dto')
+}

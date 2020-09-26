@@ -1,0 +1,11 @@
+.idea
+document
+target
+out
+outRoot
+gradle
+.gradle
+*.iml
+gradlew
+gradlew.bat
+build

@@ -1,0 +1,6 @@
+rootProject.name = '${projectName}'
+
+include '${projectName}-api'
+include ':${projectName}-appserver'
+include ':${projectName}-domain'
+include ':${projectName}-infrastructure'

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<#assign className=table.className>
+<#assign columns=table.columns>
+
+<mapper namespace="${basepackage}.dao.${modelName}.${className}Mapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="${basepackage}.po.${modelName}.${className}Po" id="${className?uncap_first}Map">
+        <#list table.columns as column>
+            <#if column.columnNameLower == 'id'>
+        <id property="${column.columnNameLower}" column="${column.sqlName}"/>
+            <#else>
+        <result property="${column.columnNameLower}" column="${column.sqlName}" <#if column.sqlTypeName == "json">typeHandler="com.bitsun.mtof.common.mybatis.handler.JsonTypeHandler"<#elseif column.sqlTypeName == "jsonb">typeHandler="com.bitsun.mtof.common.mybatis.handler.JsonbTypeHandler"<#elseif column.javaType == "java.sql.Array">typeHandler="com.bitsun.mtof.common.mybatis.handler.ArrayTypeHandler"</#if>/>
+            </#if>
+        </#list>
+    </resultMap>
+    <resultMap type="${basepackage}.po.${modelName}.${className}Po" id="${className?uncap_first}AliasMap">
+        <#list table.columns as column>
+            <#if column.columnNameLower == 'id'>
+        <id property="${column.columnNameLower}" column="${table.sqlName}_${column.sqlName}"/>
+            <#else>
+        <result property="${column.columnNameLower}" column="${table.sqlName}_${column.sqlName}" <#if column.sqlTypeName == "json">typeHandler="com.bitsun.mtof.common.mybatis.handler.JsonTypeHandler"<#elseif column.sqlTypeName == "jsonb">typeHandler="com.bitsun.mtof.common.mybatis.handler.JsonbTypeHandler"<#elseif column.javaType == "java.sql.Array">typeHandler="com.bitsun.mtof.common.mybatis.handler.ArrayTypeHandler"</#if>/>
+            </#if>
+        </#list>
+    </resultMap>
+    <sql id="${table.className?uncap_first}Columns">
+        <#list table.columns as column><#if column !='tenant_id'> ${r'${alias}'}.${column.sqlName}<#if column_has_next>,</#if></#if></#list>
+    </sql>
+    <sql id="${table.className?uncap_first}AliasColumns">
+        <#list table.columns as column><#if column !='tenant_id'> ${r'${alias}'}.${column.sqlName} ${table.sqlName}_${column.sqlName}<#if column_has_next>,</#if></#if></#list>
+    </sql>
+</mapper>
