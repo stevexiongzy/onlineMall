@@ -11,5 +11,11 @@
 
     <artifactId>itemcenter-apiserver</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.mall</groupId>
+            <artifactId>itemcenter-service</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>
