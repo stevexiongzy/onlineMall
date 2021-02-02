@@ -57,10 +57,10 @@ public class RedisLockAspect {
         Object result = null;
 
         long lockTime = annotation.lockTime();
-        boolean isSuccess = stringRedisTemplate.opsForValue().setIfAbsent(businessKey,uniqueValue,lockTime, TimeUnit.SECONDS);
-        if(!isSuccess){
-            throw new Exception("another get lock");
-        }
+//        boolean isSuccess = stringRedisTemplate.opsForValue().setIfAbsent(businessKey,uniqueValue,lockTime, TimeUnit.SECONDS);
+//        if(!isSuccess){
+//            throw new Exception("another get lock");
+//        }
 
         result = pjp.proceed();
         //开启一个线程检查超时状态

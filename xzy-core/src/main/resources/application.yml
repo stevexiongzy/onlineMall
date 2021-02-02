@@ -1,0 +1,18 @@
+server:
+  port: 8888
+  servlet:
+    context-path: /core
+spring:
+  application:
+    name: xzy-core
+  redis:
+    host: 192.168.183.186
+    port: 6379
+    password:
+    database: 0
+    timeout: 60s
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.183.186:3306/clouddemo
+    username: root
+    password: 123456
