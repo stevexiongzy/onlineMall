@@ -19,9 +19,10 @@ public @interface RedisLockAnnotation {
      */
     int lockFiled() default 0;
     /**
-     * 超时重试次数
+     * 超时重试时间
      */
-    int tryCount() default 3;
+    long tryTime() default 10;
+
     /**
      * 自定义加锁类型
      */

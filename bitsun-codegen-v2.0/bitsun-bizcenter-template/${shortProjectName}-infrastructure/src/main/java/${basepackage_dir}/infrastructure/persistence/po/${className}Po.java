@@ -52,23 +52,23 @@ public class ${className}Po extends BasePo<${className}Po> implements Serializab
      * ${column.columnComment!} ${column.sqlTypeName}
      */
         <#if column.sqlTypeName?lower_case == 'jsonb' >
-    @TableField(typeHandler = JsonTypeHandler.class)
+    @TableField(value="${column.columnName",typeHandler = JsonTypeHandler.class)
     private String ${column.columnNameLower};
         <#elseif column.sqlTypeName?lower_case == 'json' >
-    @TableField(typeHandler = JsonTypeHandler.class)
+    @TableField(value="${column.columnName",typeHandler = JsonTypeHandler.class)
     private String ${column.columnNameLower};
         <#elseif column.sqlTypeName?lower_case == '_int2'>
-    @TableField(el = "${column.columnNameLower}, typeHandler=com.bitsun.core.common.mybatis.handler.ArrayTypeHandler")
+    @TableField(value="${column.columnName",el = "${column.columnNameLower}, typeHandler=com.bitsun.core.common.mybatis.handler.ArrayTypeHandler")
     private Short[] ${column.columnNameLower};
         <#elseif column.sqlTypeName?lower_case == '_int4'>
-    @TableField(el = "${column.columnNameLower}, typeHandler=com.bitsun.core.common.mybatis.handler.ArrayTypeHandler")
+    @TableField(value="${column.columnName",el = "${column.columnNameLower}, typeHandler=com.bitsun.core.common.mybatis.handler.ArrayTypeHandler")
     private Integer[] ${column.columnNameLower};
         <#elseif column.sqlTypeName?lower_case == '_int8'>
-    @TableField(el = "${column.columnNameLower}, typeHandler=com.bitsun.core.common.mybatis.handler.ArrayTypeHandler")
+    @TableField(value="${column.columnName",el = "${column.columnNameLower}, typeHandler=com.bitsun.core.common.mybatis.handler.ArrayTypeHandler")
     private Long[] ${column.columnNameLower};
         <#elseif column.sqlTypeName?lower_case == '_varchar'
                 || column.sqlTypeName?lower_case == '_text'>
-    @TableField(el = "${column.columnNameLower}, typeHandler=com.bitsun.core.common.mybatis.handler.ArrayTypeHandler")
+    @TableField(value="${column.columnName",el = "${column.columnNameLower}, typeHandler=com.bitsun.core.common.mybatis.handler.ArrayTypeHandler")
     private String[] ${column.columnNameLower};
         <#elseif column.sqlTypeName?lower_case == 'timestamp'>
     private LocalDateTime ${column.columnNameLower};

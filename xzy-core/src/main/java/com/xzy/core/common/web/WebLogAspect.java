@@ -41,7 +41,7 @@ public class WebLogAspect {
 //    private AppExceptionHandler appExceptionHandler;
 
 //    @Pointcut("execution(* com.xzy.*.*.api.rest..*.*(..))")
-    @Pointcut("execution(* com.xzy.core.common.demo..*.*(..))")
+    @Pointcut("execution(* com.xzy.*.*.demo.api..*.*(..))")
     public void webLog() {
     }
 
