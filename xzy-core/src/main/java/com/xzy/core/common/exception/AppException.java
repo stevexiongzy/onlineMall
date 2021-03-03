@@ -4,7 +4,7 @@ package com.xzy.core.common.exception;
  * @author xzy
  * 统一 APP Exception
  */
-public class AppException extends Exception {
+public class AppException extends RuntimeException {
     private String msg;
     private String code = "500";
 
