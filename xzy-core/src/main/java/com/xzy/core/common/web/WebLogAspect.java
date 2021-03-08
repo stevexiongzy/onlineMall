@@ -1,6 +1,8 @@
 package com.xzy.core.common.web;
 
 import com.alibaba.fastjson.JSON;
+import com.xzy.core.common.constant.ExtraParam;
+import com.xzy.core.common.util.ExtraParamUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -37,10 +39,6 @@ public class WebLogAspect {
      */
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-//    @Autowired(required = false)
-//    private AppExceptionHandler appExceptionHandler;
-
-//    @Pointcut("execution(* com.xzy.*.*.api.rest..*.*(..))")
     @Pointcut("execution(* com.xzy.*.*.demo.api..*.*(..))")
     public void webLog() {
     }
@@ -86,7 +84,7 @@ public class WebLogAspect {
         log.info("================返回内容================");
         log.info("返回RESPONSE内容："+ JSON.toJSONString(ret));
         log.info("================请求结束================");
-        //todo 清除请求头处理线程
+        ExtraParamUtil.destory();
     }
 
     public Object getReqParams(Method method,Object[] args){

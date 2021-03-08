@@ -12,8 +12,12 @@ import com.xzy.core.common.persistence.IBaseService;
 import com.xzy.core.common.persistence.IBaseServiceImpl;
 import com.xzy.core.common.persistence.QueryConditionEnum;
 import com.xzy.core.common.persistence.QueryParamUtil;
+import com.xzy.core.common.util.ExtraParamUtil;
 import com.xzy.core.common.web.ResultDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.zookeeper.*;
+import org.apache.zookeeper.data.ACL;
+import org.apache.zookeeper.data.Stat;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -43,6 +47,8 @@ import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -50,7 +56,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.*;
 
 @RestController
 @RequestMapping("/test")
@@ -62,6 +70,9 @@ public class TestController {
 
     @Autowired
     private RestHighLevelClient restHighLevelClient;
+
+    @Autowired
+    private ZooKeeper zooKeeper;
 
     private GoodMapper goodMapper;
 
@@ -95,9 +106,8 @@ public class TestController {
 //        param.put("qy-nameExt-eq","222");
         List list = new ArrayList(Arrays.asList(name));
         param.put("qy-nameExt-in",list);
+        long l = System.currentTimeMillis();
         QueryWrapper<Good> wrapper = QueryParamUtil.MapToWrapper(param, Good.class);
-        QueryWrapper<Good> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.in("name_ext",list);
         List<Good> one = iBaseService.list(wrapper);
         return ResultDTO.ok(one);
     }
@@ -146,7 +156,6 @@ public class TestController {
     }
 
     @GetMapping("/esearch")
-    @Async
     public ResultDTO<Object> esearch() throws IOException {
         SearchRequest request = new SearchRequest("springboot_index_1");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -160,4 +169,10 @@ public class TestController {
         log.info("查询语句："+ searchSourceBuilder.toString());
         return ResultDTO.ok(response);
     }
-}
+
+    @GetMapping("/head")
+    @Transactional
+    public ResultDTO<Object> testHead() throws IOException, InterruptedException, KeeperException {
+        return ResultDTO.ok(ExtraParamUtil.getExtraParam());
+    }
+ }
