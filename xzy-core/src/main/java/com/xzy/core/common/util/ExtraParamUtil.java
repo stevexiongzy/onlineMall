@@ -28,7 +28,7 @@ public class ExtraParamUtil {
         return extraParam;
     }
 
-    public static void destory(){
+    public static void destroy(){
         extraParamLocal.remove();
     }
 }
