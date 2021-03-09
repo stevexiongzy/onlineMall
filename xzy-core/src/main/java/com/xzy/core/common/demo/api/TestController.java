@@ -173,6 +173,7 @@ public class TestController {
     @GetMapping("/head")
     @Transactional
     public ResultDTO<Object> testHead() throws IOException, InterruptedException, KeeperException {
+
         return ResultDTO.ok(ExtraParamUtil.getExtraParam());
     }
  }

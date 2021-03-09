@@ -23,7 +23,7 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-#xzy:
-#  core:
-#    appIdStr: xzy-app-id
-#    tenantStr: xzy-tenant-id
+xzy:
+  core:
+    appIdStr: xzy-app-id
+    tenantStr: xzy-tenant-id
