@@ -21,7 +21,7 @@ public @interface RedisLockAnnotation {
     /**
      * 超时重试时间
      */
-    long tryTime() default 10;
+    long tryTime() default 3;
 
     /**
      * 自定义加锁类型
@@ -30,5 +30,5 @@ public @interface RedisLockAnnotation {
     /**
      * 释放时间，秒 s 单位
      */
-    long lockTime() default 30;
+    long lockTime() default 5;
 }
