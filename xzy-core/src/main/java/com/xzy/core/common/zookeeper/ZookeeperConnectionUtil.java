@@ -47,6 +47,9 @@ public class ZookeeperConnectionUtil {
         return zooKeeper;
     }
 
+    /**
+     * zookeeper连接watcher静态内部类
+     */
     static class ZkConnectionWatcher implements Watcher{
 
         @Override
