@@ -8,6 +8,8 @@ import org.apache.zookeeper.ZooKeeper;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 🐻子渊
@@ -24,6 +26,7 @@ public class ZookeeperConnectionUtil {
     static {
         getZooKeeper();
     }
+    private static CountDownLatch countDownLatch ;
 
 
     /**
@@ -34,7 +37,9 @@ public class ZookeeperConnectionUtil {
     public static ZooKeeper getZooKeeper(){
         try {
            if(zooKeeper == null || !zooKeeper.getState().isAlive() || !zooKeeper.getState().isConnected()){
+               countDownLatch = new CountDownLatch(1);
                zooKeeper = new ZooKeeper(HOST, ZKTimeOut, new ZkConnectionWatcher());
+               countDownLatch.await(5, TimeUnit.SECONDS);
            }
         }catch (Exception e){
             throw new AppException("zookeeper连接失败："+e);
@@ -50,7 +55,9 @@ public class ZookeeperConnectionUtil {
             if(Objects.equals(watchedEvent.getType(),Event.EventType.None)){
                 //连接状态变化
                 switch (watchedEvent.getState()){
-                    case SyncConnected:log.info("zookeeper连接成功");
+                    case SyncConnected:
+                        log.info("zookeeper连接成功");
+                        countDownLatch.countDown();
                     case Expired:
                         log.error("zookeeper连接超时");
                         ZookeeperConnectionUtil.getZooKeeper();
