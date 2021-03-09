@@ -17,6 +17,6 @@ public class IBaseServiceImpl<M extends BaseMapper<P>,P> extends ServiceImpl<M,P
 
     @Override
     public List<P> getList(Map<String, Object> params, Class clz) {
-        return null;
+        return baseMapper.selectList(QueryParamUtil.MapToWrapper(params, clz));
     }
 }
