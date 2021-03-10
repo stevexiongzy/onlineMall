@@ -55,7 +55,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
@@ -173,7 +173,57 @@ public class TestController {
     @GetMapping("/head")
     @Transactional
     public ResultDTO<Object> testHead() throws IOException, InterruptedException, KeeperException {
+        Good good = new Good(2L,"红楼梦","GOOD1111",23);
+        byte[] bytes = ObjToByteArray(good);
+        String s = zooKeeper.create("/good", bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        return ResultDTO.ok(s);
+    }
 
-        return ResultDTO.ok(ExtraParamUtil.getExtraParam());
+    @GetMapping("/head1")
+    @Transactional
+    public ResultDTO<Object> testHead1() throws IOException, InterruptedException, KeeperException {
+        byte[] data = zooKeeper.getData("/good", false, null);
+        return ResultDTO.ok((Good)byteArrayToObj(data));
+    }
+
+    @GetMapping("/head2")
+    @Transactional
+    public ResultDTO<Object> testHead2() throws IOException, InterruptedException, KeeperException {
+        Stat stat = zooKeeper.exists("/redisDemo", new Watcher() {
+            @Override
+            public void process(WatchedEvent watchedEvent) {
+                log.info("自定义监听器："+watchedEvent);
+                try {
+                    zooKeeper.exists("/redisDemo",this);
+                } catch (Exception e) {
+                    log.error("循环添加监听器时出错："+e);
+                }
+
+            }
+        });
+        return ResultDTO.ok(stat);
+    }
+
+    public Object byteArrayToObj(byte[] bytes) {
+        Object readObject = null;
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+             ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)){
+            readObject = objectInputStream.readObject();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return readObject;
+    }
+
+    public byte[] ObjToByteArray(Object obj){
+        byte[] bytes = new byte[0];
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
+            objectOutputStream.writeObject(obj);
+            bytes = byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bytes;
     }
  }

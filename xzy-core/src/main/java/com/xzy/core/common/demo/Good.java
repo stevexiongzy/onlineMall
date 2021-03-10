@@ -7,10 +7,12 @@ import com.xzy.core.framework.persistence.BasePo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @AllArgsConstructor
 @TableName(value = "good_copy1")
-public class Good extends BasePo {
+public class Good extends BasePo implements Serializable {
     public Good() {}
     public Good(Long id) {
         this.id = id;
