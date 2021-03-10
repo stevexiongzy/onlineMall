@@ -1,16 +1,13 @@
 package com.xzy.core.common.web;
 
 import com.alibaba.fastjson.JSON;
-import com.xzy.core.common.constant.ExtraParam;
 import com.xzy.core.common.util.ExtraParamUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -84,7 +81,7 @@ public class WebLogAspect {
         log.info("================返回内容================");
         log.info("返回RESPONSE内容："+ JSON.toJSONString(ret));
         log.info("================请求结束================");
-        ExtraParamUtil.destory();
+        ExtraParamUtil.destroy();
     }
 
     public Object getReqParams(Method method,Object[] args){
