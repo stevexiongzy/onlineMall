@@ -3,6 +3,9 @@ package com.xzy.core.common.demo;
 import cn.hutool.aop.interceptor.JdkInterceptor;
 import com.xzy.core.common.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryForever;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
@@ -32,26 +35,16 @@ public class ZKConfig {
     private String zkHostName;
 
     @Bean
-    public ZooKeeper zooKeeper() throws InterruptedException, IOException {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        ZooKeeper zooKeeper = new ZooKeeper("192.168.183.186:2181", 5000, new Watcher() {
-            @Override
-            public void process(WatchedEvent watchedEvent) {
-                log.info("触发watch" + watchedEvent);
-                if(Objects.equals(watchedEvent.getType(), Event.EventType.None)) {
-                //事件类型为空，只判断客户端之间的连接状态信息
-                    if (Objects.equals(watchedEvent.getState(), Event.KeeperState.SyncConnected)) {
-                        log.info("zookeeper客户端连接成功:" + watchedEvent);
-                        countDownLatch.countDown();
-                    }else if(Objects.equals(watchedEvent.getState(), Event.KeeperState.AuthFailed)){
-                        throw new AppException("zookeeper客户端连接认证失败"+watchedEvent);
-                    }else if(Objects.equals(watchedEvent.getState(), Event.KeeperState.Expired)){
-
-                    }
-                }
-            }
-        });
-        countDownLatch.await(6, TimeUnit.SECONDS);
-        return zooKeeper;
+    public CuratorFramework curatorFramework(){
+        CuratorFramework curatorFramework = CuratorFrameworkFactory.builder()
+                //连接ip 端口号 ，集群使用逗号隔开
+                .connectString("192.168.183.186:2181")
+                //连接会话超时时间
+                .sessionTimeoutMs(5000)
+                //zk连接失效后重连机制 一直重新连接
+                .retryPolicy(new RetryForever(5000))
+                .build();
+        curatorFramework.start();
+        return curatorFramework;
     }
 }

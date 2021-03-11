@@ -23,5 +23,5 @@ public class Good extends BasePo implements Serializable {
     @TableField(value = "name_ext")
     private String nameExt;
     private String no;
-    private int gender;
+    private Integer gender;
 }

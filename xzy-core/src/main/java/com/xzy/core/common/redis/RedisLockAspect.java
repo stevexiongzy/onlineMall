@@ -70,7 +70,6 @@ public class RedisLockAspect {
         RLock lock = redissonClient.getLock(businessKey);
 
         boolean tryLock = lock.tryLock(annotation.tryTime(), lockTime, TimeUnit.SECONDS);
-
         if(!tryLock){
             throw new AppException("redis锁已被占用");
         }
