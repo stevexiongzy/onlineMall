@@ -51,6 +51,9 @@ public class TestController {
     @Autowired
     private CuratorFramework curatorFramework;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     private GoodMapper goodMapper;
 
     IBaseService<Good> iBaseService;
@@ -164,6 +167,10 @@ public class TestController {
 
     @GetMapping("/redis")
     public ResultDTO testRedis(){
+        Good good = new Good(2L,"红楼梦","GOOD1111",null);
+        Good good1 = new Good(3L,"xiyouji","GOOD123131111",null);
+        redisTemplate.opsForValue().set("123","456");
+        redisTemplate.opsForValue().set(good,good1);
         return ResultDTO.ok();
     }
 
