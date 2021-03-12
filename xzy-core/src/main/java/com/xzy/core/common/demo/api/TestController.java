@@ -26,6 +26,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -160,6 +161,12 @@ public class TestController {
         String forPath = curatorFramework.create().withMode(CreateMode.PERSISTENT).withACL(ZooDefs.Ids.OPEN_ACL_UNSAFE).forPath("/cura", "cura".getBytes());
         return ResultDTO.ok((forPath));
     }
+
+    @GetMapping("/redis")
+    public ResultDTO testRedis(){
+        return ResultDTO.ok();
+    }
+
     public Object byteArrayToObj(byte[] bytes) {
         Object readObject = null;
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
