@@ -2,6 +2,7 @@ package com.xzy.core.common.demo.api;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.Lists;
 import com.xzy.core.common.annotation.RedisLockAnnotation;
 import com.xzy.core.common.constant.RedisLockTypeEnum;
 import com.xzy.core.common.demo.Good;
@@ -9,6 +10,7 @@ import com.xzy.core.common.demo.GoodMapper;
 import com.xzy.core.common.persistence.IBaseService;
 import com.xzy.core.common.persistence.IBaseServiceImpl;
 import com.xzy.core.common.persistence.QueryParamUtil;
+import com.xzy.core.common.util.RedisUtil;
 import com.xzy.core.common.web.ResultDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
@@ -26,6 +28,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,6 +53,13 @@ public class TestController {
 
     @Autowired
     private CuratorFramework curatorFramework;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+    @Autowired
+    private HashOperations hashOperations;
+    @Autowired
+    private RedisUtil redisUtil;
 
     private GoodMapper goodMapper;
 
@@ -164,7 +174,14 @@ public class TestController {
 
     @GetMapping("/redis")
     public ResultDTO testRedis(){
-        return ResultDTO.ok();
+        Good good = new Good(2L,"红楼梦","GOOD1111",null);
+        Good good1 = new Good(3L,"西游记","12412323",null);
+        HashMap map = new HashMap();
+//        map.put("redisStr",good);
+//        map.put("redistest",good1);
+//        redisTemplate.opsForValue().multiSet(map);
+        Object redistest = redisTemplate.opsForValue().get("redistest");
+        return ResultDTO.ok(redistest);
     }
 
     public Object byteArrayToObj(byte[] bytes) {
