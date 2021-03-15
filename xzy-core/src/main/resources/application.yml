@@ -6,16 +6,16 @@ spring:
   application:
     name: xzy-core
   redis:
-    host: 192.168.183.186
+    host: 192.168.239.128
     port: 6379
     password:
     database: 0
     timeout: 60s
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.183.186:3306/trade?useSSL=false
+    url: jdbc:mysql://192.168.239.128:3306/trade?useSSL=false
 #    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
-#    url: jdbc:p6spy:mysql:192.168.183.186:3306/trade?useSSL=false
+#    url: jdbc:p6spy:mysql:192.168.239.128:3306/trade?useSSL=false
     type: com.zaxxer.hikari.HikariDataSource
     username: root
     password: 123456

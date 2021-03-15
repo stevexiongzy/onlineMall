@@ -38,7 +38,7 @@ public class ZKConfig {
     public CuratorFramework curatorFramework(){
         CuratorFramework curatorFramework = CuratorFrameworkFactory.builder()
                 //连接ip 端口号 ，集群使用逗号隔开
-                .connectString("192.168.183.186:2181")
+                .connectString("192.168.239.128:2181")
                 //连接会话超时时间
                 .sessionTimeoutMs(5000)
                 //zk连接失效后重连机制 一直重新连接

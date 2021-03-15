@@ -10,7 +10,10 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.*;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
 import java.nio.charset.Charset;
 
@@ -23,22 +26,25 @@ public class RedisConfig {
     @Bean
     public RedissonClient redissonClient(){
         Config config = new Config();
-        config.useSingleServer().setAddress("192.168.183.186:6379").setDatabase(0);
+        config.useSingleServer().setAddress("192.168.239.128:6379").setDatabase(0);
         return Redisson.create(config);
     }
 
     @Bean
-    public RedisTemplate redisTemplate(){
+    public RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory){
         RedisTemplate<String,Object> redisTemplate = new RedisTemplate<>();
         FastJsonRedisSerializer fastJsonRedisSerializer = new FastJsonRedisSerializer(Object.class);
         ObjectStringKeyRedisSerializer objectStringKeyRedisSerializer = new ObjectStringKeyRedisSerializer();
+        Jackson2JsonRedisSerializer<Object> objectJackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
 
         //全局开始autoType
         ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
 
 //         或者使用小范围白名单模式
 //         ParserConfig.getGlobalInstance().addAccept("com.xxx");
-
+        //设置连接对象
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        //设置redis 序列化
         redisTemplate.setKeySerializer(objectStringKeyRedisSerializer);
         redisTemplate.setHashKeySerializer(objectStringKeyRedisSerializer);
         redisTemplate.setHashValueSerializer(fastJsonRedisSerializer);
@@ -48,26 +54,31 @@ public class RedisConfig {
     }
 
     @Bean
+    @DependsOn("redisTemplate")
     public HashOperations<String, String, Object> hashOperations(RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForHash();
     }
 
     @Bean
-    public ValueOperations<String, String> valueOperations(RedisTemplate<String, String> redisTemplate) {
+    @DependsOn("redisTemplate")
+    public ValueOperations<String, Object> valueOperations(RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForValue();
     }
 
     @Bean
+    @DependsOn("redisTemplate")
     public ListOperations<String, Object> listOperations(RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForList();
     }
 
     @Bean
+    @DependsOn("redisTemplate")
     public SetOperations<String, Object> setOperations(RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForSet();
     }
 
     @Bean
+    @DependsOn("redisTemplate")
     public ZSetOperations<String, Object> zSetOperations(RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForZSet();
     }
