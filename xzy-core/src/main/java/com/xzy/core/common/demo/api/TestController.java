@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/test")
@@ -51,7 +52,7 @@ public class TestController {
     @Autowired
     private RestHighLevelClient restHighLevelClient;
 
-    @Autowired
+//    @Autowired
     private CuratorFramework curatorFramework;
 
     @Autowired
@@ -173,15 +174,14 @@ public class TestController {
     }
 
     @GetMapping("/redis")
-    public ResultDTO testRedis(){
+    public ResultDTO testRedis() throws InterruptedException {
         Good good = new Good(2L,"红楼梦","GOOD1111",null);
         Good good1 = new Good(3L,"西游记","12412323",null);
         HashMap map = new HashMap();
-//        map.put("redisStr",good);
-//        map.put("redistest",good1);
-//        redisTemplate.opsForValue().multiSet(map);
-        Object redistest = redisTemplate.opsForValue().get("redistest");
-        return ResultDTO.ok(redistest);
+        map.put("redisStr",good);
+        map.put("redistest",good1);
+
+        return ResultDTO.ok(redisUtil.lock("lock"));
     }
 
     public Object byteArrayToObj(byte[] bytes) {

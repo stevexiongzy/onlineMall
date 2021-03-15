@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 @ConditionalOnBean(RedisTemplate.class)
 @Slf4j
 public class RedisUtil {
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
     private RedisTemplate<String, String> redisStringTemplate;
     private HashOperations<String, Object, Object> hashOperations;
     private ValueOperations<String, Object> valueOperations;
@@ -59,12 +59,61 @@ public class RedisUtil {
      *  ================================================***基本操作封装*****=====================================
      *  ==========================================================================================================
      */
+
+    /**
+     * 删除 key 集合
+     * @param keyList KEY集合
+     * @return 删除的条数
+     */
     public Long delete(Collection<String> keyList){
         return redisTemplate.delete(keyList);
     }
 
+    /**
+     * 删除 key
+     * @param key KEY
+     * @return true/false
+     */
     public Boolean delete(String key){
         return redisTemplate.delete(key);
+    }
+
+    /**
+     * 设置 ttl
+     * @param key KEY
+     * @param timeout ttl
+     * @param timeunit 时间单位
+     * @return true/false
+     */
+    public Boolean expire(String key,Long timeout,TimeUnit timeunit){
+        return redisTemplate.expire(key, timeout, timeunit);
+    }
+
+    /**
+     * 返回ttl
+     * @param key
+     * @return ttl
+     */
+    public Long getExpire(String key){
+        return redisTemplate.getExpire(key);
+    }
+
+    /**
+     * 判断是否包含key
+     * @param key
+     * @return true/false
+     */
+    public Boolean hasKey(String key){
+        return redisTemplate.hasKey(key);
+    }
+
+    /**
+     * 根据表达式查询key
+     * @param pattern 表达式
+     * @return key 集合
+     */
+    public Set<String> keys(String pattern){
+        return redisTemplate.keys(pattern);
     }
 
     /**
@@ -211,7 +260,7 @@ public class RedisUtil {
         if(expire < 0 ){
             return setIfAbsent(key,value);
         }
-        Object execute = redisTemplate.execute((RedisCallback) connection -> {
+        Object execute = redisTemplate.execute((RedisCallback<Object>) connection -> {
             ObjectStringKeyRedisSerializer serializer = new ObjectStringKeyRedisSerializer();
             return connection.execute("set", serializer.serialize(key)
                     , serializer.serialize(value), "NX".getBytes(Charset.defaultCharset()), "PX".getBytes(Charset.defaultCharset()),
@@ -260,7 +309,7 @@ public class RedisUtil {
      *  ==========================================================================================================
      */
     public Boolean lock(String businessKey){
-        return lock(businessKey,DEFAULT_LOCK_WAITTIME);
+        return lock(businessKey,DEFAULT_LOCK_WAITTIME,-1);
     }
 
     /**

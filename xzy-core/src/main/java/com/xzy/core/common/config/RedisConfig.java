@@ -2,6 +2,7 @@ package com.xzy.core.common.config;
 
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
+import com.xzy.core.common.exception.AppException;
 import com.xzy.core.common.redis.ObjectStringKeyRedisSerializer;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -14,7 +15,10 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.util.ResourceUtils;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
@@ -25,8 +29,12 @@ import java.nio.charset.Charset;
 public class RedisConfig {
     @Bean
     public RedissonClient redissonClient(){
-        Config config = new Config();
-        config.useSingleServer().setAddress("192.168.239.128:6379").setDatabase(0);
+        Config config = null;
+        try {
+            config = Config.fromYAML(ResourceUtils.getFile("classpath:redission.yml"));
+        }catch (IOException e){
+            throw new AppException("redission 初始化出错"+e);
+        }
         return Redisson.create(config);
     }
 
@@ -35,8 +43,6 @@ public class RedisConfig {
         RedisTemplate<String,Object> redisTemplate = new RedisTemplate<>();
         FastJsonRedisSerializer fastJsonRedisSerializer = new FastJsonRedisSerializer(Object.class);
         ObjectStringKeyRedisSerializer objectStringKeyRedisSerializer = new ObjectStringKeyRedisSerializer();
-        Jackson2JsonRedisSerializer<Object> objectJackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
-
         //全局开始autoType
         ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
 
@@ -55,7 +61,7 @@ public class RedisConfig {
 
     @Bean
     @DependsOn("redisTemplate")
-    public HashOperations<String, String, Object> hashOperations(RedisTemplate<String, Object> redisTemplate) {
+    public HashOperations<String, Object, Object> hashOperations(RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForHash();
     }
 
