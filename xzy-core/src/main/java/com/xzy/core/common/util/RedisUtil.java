@@ -4,18 +4,16 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.xzy.core.common.exception.AppException;
 import com.xzy.core.common.redis.ObjectStringKeyRedisSerializer;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -24,23 +22,28 @@ import java.util.concurrent.TimeUnit;
  * @author xzy
  */
 @Component
-@ConditionalOnClass(RedisTemplate.class)
+@ConditionalOnBean(RedisTemplate.class)
 @Slf4j
 public class RedisUtil {
     private RedisTemplate redisTemplate;
     private RedisTemplate<String, String> redisStringTemplate;
-    private HashOperations hashOperations;
-    private ValueOperations valueOperations;
-    private ListOperations listOperations;
-    private SetOperations setOperations;
-    private ZSetOperations zSetOperations;
+    private HashOperations<String, Object, Object> hashOperations;
+    private ValueOperations<String, Object> valueOperations;
+    private ListOperations<String, Object> listOperations;
+    private SetOperations<String, Object> setOperations;
+    private ZSetOperations<String, Object> zSetOperations;
+    private RedissonClient redissonClient;
 
     private static String executeSucessStr = "OK";
 
     private static Long DEFAULT_TIME_OUT = 60 * 60 * 24 * 1000L;
 
+    private static Long DEFAULT_LOCK_WAITTIME = 5 * 1000L;
+
     @Autowired
-    public RedisUtil(RedisTemplate redisTemplate, HashOperations hashOperations, ValueOperations valueOperations, ListOperations listOperations, SetOperations setOperations, ZSetOperations zSetOperations,StringRedisTemplate redisStringTemplate) {
+    public RedisUtil(RedissonClient redissonClient, RedisTemplate<String,Object> redisTemplate, HashOperations<String, Object, Object> hashOperations,
+                     ValueOperations<String, Object> valueOperations, ListOperations<String,Object> listOperations,
+                     SetOperations<String,Object> setOperations, ZSetOperations<String,Object> zSetOperations, StringRedisTemplate redisStringTemplate) {
         this.redisTemplate = redisTemplate;
         this.hashOperations = hashOperations;
         this.valueOperations = valueOperations;
@@ -48,6 +51,20 @@ public class RedisUtil {
         this.setOperations = setOperations;
         this.zSetOperations = zSetOperations;
         this.redisStringTemplate = redisStringTemplate;
+        this.redissonClient = redissonClient;
+    }
+
+    /**
+     *  ==========================================================================================================
+     *  ================================================***基本操作封装*****=====================================
+     *  ==========================================================================================================
+     */
+    public Long delete(Collection<String> keyList){
+        return redisTemplate.delete(keyList);
+    }
+
+    public Boolean delete(String key){
+        return redisTemplate.delete(key);
     }
 
     /**
@@ -102,8 +119,7 @@ public class RedisUtil {
      * @return true/false
      */
     public Object getAndSet(String key,Serializable value){
-        Object andSet = valueOperations.getAndSet(key, value);
-        return andSet;
+        return valueOperations.getAndSet(key, value);
     }
 
     /**
@@ -123,7 +139,7 @@ public class RedisUtil {
      * @param collection key的集合
      * @return List 只能获取json形式的格式化数据或数值类型 其余类型报错
      */
-    public List multiGet(List collection){
+    public List<Object> multiGet(List<String> collection){
         if(CollectionUtil.isEmpty(collection)){
             return null;
         }
@@ -195,17 +211,14 @@ public class RedisUtil {
         if(expire < 0 ){
             return setIfAbsent(key,value);
         }
-        Object execute = redisTemplate.execute(new RedisCallback() {
-            @Override
-            public Object doInRedis(RedisConnection connection) throws DataAccessException {
-                ObjectStringKeyRedisSerializer serializer = new ObjectStringKeyRedisSerializer();
-                return connection.execute("set", serializer.serialize(key)
-                        , serializer.serialize(value), "NX".getBytes(Charset.defaultCharset()), "PX".getBytes(Charset.defaultCharset()),
-                        new Long(expire).toString().getBytes(Charset.defaultCharset()));
-            }
+        Object execute = redisTemplate.execute((RedisCallback) connection -> {
+            ObjectStringKeyRedisSerializer serializer = new ObjectStringKeyRedisSerializer();
+            return connection.execute("set", serializer.serialize(key)
+                    , serializer.serialize(value), "NX".getBytes(Charset.defaultCharset()), "PX".getBytes(Charset.defaultCharset()),
+                    Long.toString(expire).getBytes(Charset.defaultCharset()));
         });
 
-        return Objects.equals((String) execute, executeSucessStr);
+        return Objects.equals(execute, executeSucessStr);
     }
 
     /**
@@ -219,11 +232,203 @@ public class RedisUtil {
     }
 
     /**
+     * increment key value 操作
+     * @param key KEY
+     * @param value VALUE
+     * @return Long 自增后返回值
+     */
+    public Long increment(String key,long value){
+        return valueOperations.increment(key, value);
+    }
+
+    /**
+     * increment key value 操作
+     * @param key KEY
+     * @param value VALUE
+     * @return Double 自增后返回值
+     */
+    public Double increment(String key,double value){
+        return valueOperations.increment(key, value);
+    }
+
+    /**
+     *  ==========================================================================================================
+     *  ================================================***分布式锁*****=====================================
+     *  redis锁使用redisson框架实现，不传入leaseTime时，会启用watchdog机制，给锁一直续时，
+     *  续时到时间为 lockWatchdogTimeout 默认续到 30s,当 ttl 为 lockWatchdogTimeout / 3 时进行续时
+     *  lockWatchdogTimeout可通过yml方式进行配置 ，注意 watchdog会一直续时 ，如果出现死循环死锁 ，lock key会一直存在。
+     *  ==========================================================================================================
+     */
+    public Boolean lock(String businessKey){
+        return lock(businessKey,DEFAULT_LOCK_WAITTIME);
+    }
+
+    /**
+     *
+     * @param businessKey lock KEY
+     * @param waitTime 获取锁等待的时间 默认等待5s
+     * @return true/false
+     * @Description: 使用 watchdog
+     */
+    public Boolean lock(String businessKey,long waitTime){
+        return lock(businessKey, waitTime,-1);
+    }
+
+    /**
+     *
+     * @param businessKey lock KEY
+     * @param waitTime 获取锁等待的时间 默认等待5s
+     * @param leaseTime 锁持续的时间
+     * @return true/false
+     */
+    public Boolean lock(String businessKey,long waitTime,long leaseTime){
+        RLock lock = redissonClient.getLock(businessKey);
+        boolean tryLock;
+        try {
+            tryLock = lock.tryLock(waitTime,leaseTime, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            throw new AppException("redis 加锁异常"+e);
+        }
+        return tryLock;
+    }
+
+    /**
+     * @Description: 解锁操作
+     * @param businessKey lock KEY
+     * @return true/false
+     */
+    public Boolean unLock(String businessKey){
+        RLock lock = redissonClient.getLock(businessKey);
+        lock.unlock();
+        return true;
+    }
+
+    /**
      *  ==========================================================================================================
      *  ================================================***操作哈希结构封装*****=====================================
      *  ==========================================================================================================
      */
 
+    /**
+     * hPut key hashKey value 操作
+     * @param key 大KEY
+     * @param hashKey hashKEY
+     * @param hashValue hashVALUE
+     * @return true/false
+     */
+    public Boolean hPut(String key,Object hashKey,Object hashValue){
+        hashOperations.put(key, hashKey, hashValue);
+        return true;
+    }
+
+    /**
+     * hPut key [hashKey value ... ] 操作
+     * @param key 大KEY
+     * @param map Map<hashKEY,hashVALUE>
+     * @return true/false
+     */
+    public Boolean hPutAll(String key, Map<Object, Object> map){
+        hashOperations.putAll(key, map);
+        return true;
+    }
+
+    /**
+     * hincrement key value 操作
+     * @param key KEY
+     * @param value VALUE
+     * @return Long 自增后返回值
+     */
+    public Long hIncrement(String key,Object hashkey,long value){
+        return hashOperations.increment(key, hashkey,value);
+    }
+
+    /**
+     * hincrement key value 操作
+     * @param key KEY
+     * @param value VALUE
+     * @return Double 自增后返回值
+     */
+    public Double hIncrement(String key,Object hashkey,double value){
+        return hashOperations.increment(key,hashkey, value);
+    }
+
+    /**
+     * hPut nx key hashKey value 操作
+     * @param key 大KEY
+     * @param hashKey hashKEY
+     * @param hashValue hashVALUE
+     * @return true/false
+     */
+    public Boolean hPutIfAbsent(String key,Object hashKey,Object hashValue){
+        return hashOperations.putIfAbsent(key, hashKey, hashValue);
+    }
+
+    /**
+     * hGet key hashKEY  操作
+     * @param key 大KEY
+     * @param hashKey hashKEY
+     * @return Object hash值
+     */
+    public Object hGet(String key,Object hashKey){
+        return hashOperations.get(key, hashKey);
+    }
+
+    /**
+     * hdelete key [hashkey ...] 操作
+     * @param key KEY
+     * @param hashKeys hashKEYS
+     * @return 删除的条数
+     */
+    public Long hDelete(String key,Object... hashKeys){
+        Long delete = hashOperations.delete(key, hashKeys);
+        return delete;
+    }
+
+    /**
+     * 判断是否包含hashkey
+     * @param key KEY
+     * @param hashKeys hashKEY
+     * @return true/false
+     */
+    public Boolean hasKey(String key,Object hashKeys){
+        return hashOperations.hasKey(key, hashKeys);
+    }
+
+    /**
+     * 获取KEY的Map结构
+     * @param key KEY
+     * @return 哈希Map结构
+     */
+    public Map<Object, Object> entries(String key){
+        return hashOperations.entries(key);
+    }
+
+    /**
+     * 获得hashkey的容量
+     * @param key KEY
+     * @return hashKEY集合
+     */
+    public Set<Object> hKeys(String key){
+        return hashOperations.keys(key);
+    }
+
+    /**
+     * 获得hashkey的容量
+     * @param key KEY
+     * @return key的hashKEY容量
+     */
+    public Long hSize(String key){
+        return hashOperations.size(key);
+    }
+
+    /**
+     * 获得所有的值
+     * @param key KEY
+     * @return key的值集合
+     */
+    public List<Object> hValues(String key){
+        return hashOperations.values(key);
+    }
 
     /**
      *  ==========================================================================================================
@@ -245,4 +450,5 @@ public class RedisUtil {
      *  ================================================***操作zSet封装*****=====================================
      *  ==========================================================================================================
      */
+
 }
