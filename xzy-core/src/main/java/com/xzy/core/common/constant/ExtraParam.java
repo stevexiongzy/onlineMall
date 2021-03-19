@@ -13,7 +13,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ExtraParam {
     /**多租户隔离**/
-    Long tenantId;
+    private Long tenantId;
     /**应用信息**/
-    Long appId;
+    private Long appId;
+    /**用户id**/
+    private Long operateId;
+    /**用户名**/
+    private String operateName;
 }

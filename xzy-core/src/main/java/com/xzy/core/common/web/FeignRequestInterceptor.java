@@ -20,14 +20,26 @@ public class FeignRequestInterceptor implements RequestInterceptor {
     private String tenantStr;
     @Value("${xzy.core.appIdStr:xzy-app-id}")
     private String appIdStr;
+    @Value("${xzy.core.operateId:xzy-operate-id}")
+    private String operateIdStr;
+    @Value("${xzy.core.operateName:xzy-operate-name}")
+    private String operateNameStr;
 
     @Override
     public void apply(RequestTemplate requestTemplate) {
         ExtraParam extraParam = ExtraParamUtil.getExtraParam();
 
-        Optional.ofNullable(extraParam.getTenantId()).ifPresent(tenantId -> requestTemplate.header(tenantStr,tenantId.toString()));
+        Optional.ofNullable(extraParam.getTenantId())
+                .ifPresent(tenantId -> requestTemplate.header(tenantStr,tenantId.toString()));
 
-        Optional.ofNullable(extraParam.getAppId()).ifPresent(appId -> requestTemplate.header(appIdStr,appId.toString()));
+        Optional.ofNullable(extraParam.getAppId())
+                .ifPresent(appId -> requestTemplate.header(appIdStr,appId.toString()));
+
+//        Optional.ofNullable(extraParam.getOperateId())
+//                .ifPresent(operateId -> requestTemplate.header(operateIdStr, operateId.toString()));
+//
+//        Optional.ofNullable(extraParam.getOperateName())
+//                .ifPresent(operateName -> requestTemplate.header(operateNameStr,operateName));
 
     }
 }

@@ -23,6 +23,10 @@ public class ExtraParamInterceptor extends HandlerInterceptorAdapter {
     private String tenantStr;
     @Value("${xzy.core.appIdStr:xzy-app-id}")
     private String appIdStr;
+    @Value("${xzy.core.operateIdStr:xzy-operate-id}")
+    private String operateIdStr;
+    @Value("${xzy.core.operateNameStr:xzy-operate-name}")
+    private String operateNameStr;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -31,9 +35,19 @@ public class ExtraParamInterceptor extends HandlerInterceptorAdapter {
         if(StringUtils.isNumeric(request.getHeader(tenantStr))){
             extraParam.setTenantId(Long.valueOf(request.getHeader(tenantStr)));
         }
+
         if(StringUtils.isNumeric(request.getHeader(appIdStr))){
             extraParam.setAppId(Long.valueOf(request.getHeader(appIdStr)));
         }
+
+        //TODO:用户信息要从token中解析 并将token传入下一次rpc调用
+//        if(StringUtils.isNumeric(request.getHeader(operateIdStr))){
+//            extraParam.setOperateId(Long.valueOf(request.getHeader(operateIdStr)));
+//        }
+//
+//        if(StringUtils.isNumeric(request.getHeader(operateNameStr))){
+//            extraParam.setOperateName(String.valueOf(request.getHeader(operateNameStr)));
+//        }
 
         ExtraParamUtil.setExtraParam(extraParam);
 

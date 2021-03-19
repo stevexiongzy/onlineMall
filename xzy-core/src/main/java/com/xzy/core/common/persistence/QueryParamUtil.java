@@ -190,6 +190,7 @@ public class QueryParamUtil {
      * @return
      */
     private static String camelToUnderline(String str) {
+
         if (str == null || str.trim().isEmpty()){
             return "";
         }

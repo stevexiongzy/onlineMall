@@ -2,7 +2,6 @@ package com.xzy.core.common.util;
 
 import com.xzy.core.common.constant.ExtraParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.NamedThreadLocal;
 
 import java.util.Optional;
 
