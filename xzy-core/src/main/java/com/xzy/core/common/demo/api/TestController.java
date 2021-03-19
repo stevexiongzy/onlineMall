@@ -3,7 +3,9 @@ package com.xzy.core.common.demo.api;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.xzy.core.common.annotation.RedisLockAnnotation;
 import com.xzy.core.common.constant.RedisLockTypeEnum;
@@ -98,57 +100,8 @@ public class TestController {
     public ResultDTO<Good> testMPUpdate() throws IOException {
         List<Good> list = new ArrayList<>();
         Map<String,Object> param = new HashMap<>();
-        List<Good> list1 = iBaseService.getList(param, Good.class);
-        list1.forEach(good -> good.setId(null));
-        boolean b = iBaseService.saveBatch(list1);
-        return ResultDTO.ok();
-    }
-
-    private Class currentModelClassFromObject(BaseMapper baseMapper) {
-        try {
-            BaseMapper mp = baseMapper;
-            /**
-             * 获取真正的代理类(h是java.lang.reflect.Proxy类中InvocationHandler类型私有属性)
-             * mp.getClass():内存自动生成的代理类(是Proxy的子类,如:com.sun.proxy.$Proxy106)
-             * mp.getClass().getSuperclass():java.lang.reflect.Proxy
-             * getDeclaredField("h"):获取java.lang.reflect.Proxy类中InvocationHandler类型的私有属性h
-             * h.get(mp):取到真正的代理类(PageMapperProxy)
-             */
-            Field h = mp.getClass().getSuperclass().getDeclaredField("h");
-            h.setAccessible(true);
-            InvocationHandler mapperProxy = (InvocationHandler)h.get(mp);
-            /**
-             * 获取Class类型的mapperInterface对象(mapperInterface是PageMapperProxy类中Class类型私有属性)
-             *
-             */
-            Field mapperInterface = mapperProxy.getClass().getDeclaredField("mapperInterface");
-            mapperInterface.setAccessible(true);
-            Class mapperInterfaceObject = (Class)mapperInterface.get(mapperProxy);
-            /**
-             * 获取ClassRepository类型的genericInfo对象(genericInfo是Class类中ClassRepository类型私有属性)
-             */
-            Field genericInfo = mapperInterfaceObject.getClass().getDeclaredField("genericInfo");
-            genericInfo.setAccessible(true);
-            Object genericInfoObj = genericInfo.get(mapperInterfaceObject);
-            /**
-             * 获取superInterfaces对象(superInterfaces是ClassRepository类中的Type[]类型私有属性
-             */
-            Field superInterfaces = genericInfoObj.getClass().getDeclaredField("superInterfaces");
-            superInterfaces.setAccessible(true);
-            Type[] superInterfacesObj = (Type[])superInterfaces.get(genericInfoObj);
-            /**
-             * 获取com.baomidou.mybatisplus.core.mapper.BaseMapper<真正的Po>
-             */
-            ParameterizedType superInterfaceObj = (ParameterizedType)superInterfacesObj[0];
-            /**
-             * 获取真正的Po
-             */
-            Type[] types = superInterfaceObj.getActualTypeArguments();
-            Class clz = (Class)types[0];
-            return clz;
-        } catch (Exception e) {
-            return Object.class;
-        }
+        IPage<Good> goodIPage = goodMapper.selectAllById(new Page(1,5));
+        return ResultDTO.ok(goodIPage);
     }
 
     @GetMapping("/es")

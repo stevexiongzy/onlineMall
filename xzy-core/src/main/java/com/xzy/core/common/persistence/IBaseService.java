@@ -1,5 +1,6 @@
 package com.xzy.core.common.persistence;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -13,5 +14,10 @@ public interface IBaseService<T> extends IService<T> {
     /**
      * 单表查询
      */
-    List<T> getList(Map<String, Object> params, Class clz);
+    List<T> getList(Map<String, Object> params, Class<T> clz);
+
+    /**
+     * 分页查询
+     */
+    Page<T> queryPage(Map<String, Object> params, Class<T> clz);
 }

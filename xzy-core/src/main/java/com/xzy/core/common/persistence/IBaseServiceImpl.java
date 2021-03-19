@@ -1,6 +1,7 @@
 package com.xzy.core.common.persistence;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import java.lang.reflect.Field;
@@ -20,19 +21,30 @@ public class IBaseServiceImpl<M extends BaseMapper<P>,P> extends ServiceImpl<M,P
         currentModelClassFromObject();
     }
 
+    /**
+     * 不分页获取列表
+     * @param params 查询参数
+     * @param clz 实体类型
+     * @return List
+     */
     @Override
-    public List<P> getList(Map<String, Object> params, Class clz) {
+    public List<P> getList(Map<String, Object> params, Class<P> clz) {
         return baseMapper.selectList(QueryParamUtil.MapToWrapper(params, clz));
     }
+
+    @Override
+    public Page<P> queryPage(Map<String, Object> params, Class<P> clz) {
+        return null;
+    }
+
     /**
      * 自己定义的serviceImp需要修复Batch
      * 当super.currentModelClass方法取不到Po类型时(即返回Object),再尝试从代理对象里取po类型.
      * Batch批量操作时,由于我们的Po没有写一个继承serviceImpl的子类(全部使用BasePService泛型类处理) ,而原有的currentModelClass方法是从静态类里拿PO的,所以会拿不到
      * ,现在增加一个从代理对象里拿PO的方法(当currentModelClass方法取不到时才调用),不影响原有逻辑的走向
      *
-     * @return Po对象的类
      */
-    private Class currentModelClassFromObject() {
+    private void currentModelClassFromObject() {
         try {
             BaseMapper mp = this.baseMapper;
             /**
@@ -77,9 +89,8 @@ public class IBaseServiceImpl<M extends BaseMapper<P>,P> extends ServiceImpl<M,P
 
             this.mapperClass = mapperInterfaceObject;
             this.entityClass = clz;
-            return clz;
         } catch (Exception e) {
-            return Object.class;
         }
     }
+
 }

@@ -3,4 +3,7 @@
 
 <mapper namespace="com.xzy.core.common.demo.GoodMapper">
 
+    <select id="selectAllById" resultType="com.xzy.core.common.demo.Good">
+        select * from good_copy1;
+    </select>
 </mapper>
