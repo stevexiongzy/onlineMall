@@ -19,5 +19,5 @@ public interface IBaseService<T> extends IService<T> {
     /**
      * 分页查询
      */
-    Page<T> queryPage(Map<String, Object> params, Class<T> clz);
+    Pager<T> queryPage(Map<String, Object> params, Class<T> clz);
 }

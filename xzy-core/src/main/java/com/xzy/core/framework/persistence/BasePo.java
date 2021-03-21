@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
  * @author xzy
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class BasePo<T extends Model<T>> extends Model<T> implements Serializable {
+@EqualsAndHashCode (callSuper = false)
+public class BasePo implements Serializable {
     /**
      * 主键 id , insert时自动注入
      */
@@ -79,9 +79,4 @@ public class BasePo<T extends Model<T>> extends Model<T> implements Serializable
      */
     @TableField(value = "modify_time", fill = FieldFill.INSERT_UPDATE)
     protected LocalDateTime modifyTime;
-
-    @Override
-    protected Serializable pkVal() {
-        return id;
-    }
 }

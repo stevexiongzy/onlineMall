@@ -1,4 +1,4 @@
-package com.xzy.core.framework.persistence;
+package com.xzy.core.common.persistence;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -65,8 +65,15 @@ public class Pager<T> implements IPage<T> {
     public Pager() {
     }
 
+    /**
+     * 构造分页参数
+     * 1.构造页数和页大小参数
+     * 2.构造排序参数
+     * 3.删除param中相关排序参数
+     * @param param
+     */
     public Pager(Map<String,Object> param){
-
+        param.get("currentPage");
     }
 
     @Override
