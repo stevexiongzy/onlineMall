@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.xzy.core.common.exception.AppException;
+import com.xzy.core.common.util.DbFieldUtil;
 import com.xzy.core.framework.persistence.BasePo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -73,7 +74,7 @@ public class QueryParamUtil {
                     //将传入参数转化为字段对应的类型
                     Object castTypeVal = castType(v, field,operate);
                     QueryConditionEnum queryConditionEnum = QueryConditionEnum.valueOf(operate);
-                    queryConditionEnum.getQuery(queryWrapper,camelToUnderline(fieldName),castTypeVal);
+                    queryConditionEnum.getQuery(queryWrapper, DbFieldUtil.camelToUnderline(fieldName),castTypeVal);
                 }
             }
         });
@@ -181,31 +182,5 @@ public class QueryParamUtil {
             return map;
         }
         return null;
-    }
-
-    /**
-     * 驼峰转下划线
-     *
-     * @param str 传入需要转换的字符串
-     * @return
-     */
-    private static String camelToUnderline(String str) {
-
-        if (str == null || str.trim().isEmpty()){
-            return "";
-        }
-        int len = str.length();
-        StringBuilder sb = new StringBuilder(len);
-        sb.append(str.substring(0, 1).toLowerCase());
-        for (int i = 1; i < len; i++) {
-            char c = str.charAt(i);
-            if (Character.isUpperCase(c)) {
-                sb.append("_");
-                sb.append(Character.toLowerCase(c));
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
     }
 }

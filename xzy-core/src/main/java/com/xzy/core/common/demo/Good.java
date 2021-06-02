@@ -12,7 +12,8 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @TableName(value = "good_copy1")
-public class Good extends BasePo<Good> {
+public class Good extends BasePo {
+    public static int a = 0;
     public Good() {}
     public Good(Long id) {
         this.id = id;

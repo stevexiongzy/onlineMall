@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryForever;
+import org.apache.curator.retry.RetryOneTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +20,7 @@ public class ZKConfig {
     @Value("${zk.hostname:localhost}")
     private String zkHostName;
 
-    @Bean
+//    @Bean
     public CuratorFramework curatorFramework(){
         CuratorFramework curatorFramework = CuratorFrameworkFactory.builder()
                 //连接ip 端口号 ，集群使用逗号隔开
@@ -27,7 +28,7 @@ public class ZKConfig {
                 //连接会话超时时间
                 .sessionTimeoutMs(5000)
                 //zk连接失效后重连机制 一直重新连接
-                .retryPolicy(new RetryForever(5000))
+                .retryPolicy(new RetryOneTime(30))
                 .build();
         curatorFramework.start();
         return curatorFramework;

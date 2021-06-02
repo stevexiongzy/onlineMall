@@ -11,4 +11,5 @@ import java.util.Map;
 @Mapper
 public interface GoodMapper extends BaseMapper<Good> {
     IPage<Good> selectAllById(Page page);
+    Good selectAllByIdAfter();
 }

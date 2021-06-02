@@ -1,0 +1,40 @@
+mybatis-plus:
+  configuration:
+    cache-enabled: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+server:
+  port: 8888
+  servlet:
+    context-path: /core
+spring:
+  application:
+    name: xzy-core
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: 123456
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://192.168.183.186:3306/trade?useSSL=false
+    username: root
+  redis:
+    database: 0
+    host: 192.168.183.186
+    password: ''
+    port: 6379
+    timeout: 60s
+xzy:
+  core:
+    appIdStr: xzy-app-id
+    dbType: MYSQL
+    operateIdStr: xzy-operate-id
+    operateNameStr: xzy-operate-name
+    tenantColumnName: tenant_id
+    tenantStr: xzy-tenant-id
+    alReadySkuPro: sku编码,sku名称,条形码,厂商货号,海关编码,辅计量单位,辅计量管理,采购默认单位英文,采购单位换算率,是否免税,采购价,建议零售价,助记码,主计量单位,单位名称,采购默认单位,单位名称,采购默认单位,单位名称,销售默认单位,单位名称
+    alReadySpuPro: 是否有保质期,备注,应税劳务,是否代销,是否冻结,税收分类编码,税收分类名称,品牌,品牌名称,品牌档案编码,商品供应商,供应商名称,采购币种,采购币种名称,存货分类,存货分类名称,统计分类,统计分类名称,统计分类档案编码,产品线档案编码,产品线档案,公司编码,公司名称,部门编码,部门名称,档案编码
+    allProperties: 单据日期,存货名称,外文名称,存货编码,商品条码,厂商货号,辅计量单位,辅计量管理,采购默认单位英文,采购单位换算率,规格,季节,尺码,品类,材质,是否有保质期,是否免税,备注,应税劳务,采购价,建议零售价,是否代销,助记码,税收分类名称,税收分类编码,主计量单位,单位名称,采购默认单位,单位名称,采购默认单位,单位名称,销售默认单位,单位名称,品牌,品牌名称,品牌档案编码,商品供应商,供应商名称,产地地区,产地名称,产地档案编码,采购币种,采购币种名称,存货分类,存货分类名称,统计分类,统计分类名称,统计分类档案编码,产品线档案编码,产品线档案,公司编码,公司名称,部门编码,部门名称,档案编码

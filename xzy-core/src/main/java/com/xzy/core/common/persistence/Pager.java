@@ -2,12 +2,15 @@ package com.xzy.core.common.persistence;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
+import com.xzy.core.common.util.DbFieldUtil;
 import io.swagger.annotations.ApiModelProperty;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.NumberUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 自定义页面对象
@@ -73,53 +76,95 @@ public class Pager<T> implements IPage<T> {
      * @param param
      */
     public Pager(Map<String,Object> param){
-        param.get("currentPage");
+        Long currentPageParam = NumberUtils.parseNumber(String.valueOf(param.remove("currentPage")),Long.class);
+        Long pageSizeParam =  NumberUtils.parseNumber(String.valueOf(param.remove("pageSize")),Long.class);
+
+        //分页参数
+        this.currentPage = currentPageParam != null && currentPageParam > 1L ?currentPageParam :1L;
+        this.pageSize = pageSizeParam != null && pageSizeParam > 1L ?pageSizeParam :10L;
+        //todo:sql注入排查
+
+        //排序参数
+        String sorter = (String) param.remove("sorter");
+        if(StringUtils.isBlank(sorter)){
+            this.orderItems = Collections.singletonList(OrderItem.desc(DbFieldUtil.camelToUnderline("createTime")));
+            return;
+        }
+        List<String> ascFields = Lists.newArrayList();
+        List<String> descFields = Lists.newArrayList();
+
+        String[] sorterArr = sorter.split(",");
+        for(String sorterStr : sorterArr){
+            String[] sf = sorterStr.split("-");
+            if(sf.length == 2){
+                if ("desc".equalsIgnoreCase(sf[0])) {
+                    descFields.add(DbFieldUtil.camelToUnderline(sf[1]));
+                } else if ("asc".equalsIgnoreCase(sf[0])) {
+                    ascFields.add(DbFieldUtil.camelToUnderline(sf[1]));
+                }
+            }
+        }
+
+        List<OrderItem> descOrderItem = OrderItem.descs(descFields.toArray(new String[0]));
+        List<OrderItem> ascOrderItem = OrderItem.ascs(ascFields.toArray(new String[0]));
+        descOrderItem.addAll(ascOrderItem);
+        this.orderItems = descOrderItem;
     }
 
     @Override
+    @JsonIgnore
     public List<OrderItem> orders() {
+
         return orderItems;
     }
 
     @Override
+    @JsonIgnore
     public List getRecords() {
         return list;
     }
 
     @Override
+    @JsonIgnore
     public IPage setRecords(List records) {
         this.list = records;
         return this;
     }
 
     @Override
+    @JsonIgnore
     public long getTotal() {
         return totalCount;
     }
 
     @Override
+    @JsonIgnore
     public IPage setTotal(long total) {
         this.totalCount = total;
         return this;
     }
 
     @Override
+    @JsonIgnore
     public long getSize() {
         return pageSize;
     }
 
     @Override
+    @JsonIgnore
     public IPage setSize(long size) {
         this.pageSize = size;
         return this;
     }
 
     @Override
+    @JsonIgnore
     public long getCurrent() {
         return currentPage;
     }
 
     @Override
+    @JsonIgnore
     public IPage setCurrent(long current) {
         this.currentPage = current;
         return this;

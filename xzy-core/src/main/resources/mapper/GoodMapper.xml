@@ -6,4 +6,7 @@
     <select id="selectAllById" resultType="com.xzy.core.common.demo.Good">
         select * from good_copy1;
     </select>
+    <select id="selectAllByIdAfter" resultType="com.xzy.core.common.demo.Good">
+        select * from good_copy1 limit 1;
+    </select>
 </mapper>

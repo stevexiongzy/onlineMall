@@ -34,8 +34,7 @@ public class IBaseServiceImpl<M extends BaseMapper<P>,P> extends ServiceImpl<M,P
 
     @Override
     public Pager<P> queryPage(Map<String, Object> params, Class<P> clz) {
-        Pager<P> pager = new Pager<>(params);
-        return this.page(pager,QueryParamUtil.MapToWrapper(params,clz));
+        return this.page(new Pager<>(params),QueryParamUtil.MapToWrapper(params,clz));
     }
 
     /**
